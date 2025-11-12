@@ -45,7 +45,7 @@ export const WhiteInner = styled.div`
 
 export const OptionText = styled.div`
   margin: auto 4px;
-  font-size: 14px;
+  font-size: 16px;
   color: ${colors.black};
 `;
 
@@ -93,19 +93,19 @@ export const OptionsContainer = styled.div`
 export const OptionsList = styled.div`
   width: 100%;
   background-color: #ffffff;
-  border-width: 2px;
+  border-width: 0.094rem;
   border-style: solid;
   border-color: ${colors.black};
   box-sizing: border-box;
-  max-height: 200px;
+  max-height: 10rem;
   overflow-y: auto;
   overflow-x: hidden;
 `;
 
 export const Option = styled.div`
-  padding: 8px 12px;
+  padding: 0.1rem;
   font-family: ${fonts.primary};
-  font-size: 14px;
+  font-size: 16px;
   color: ${colors.black};
   cursor: pointer;
 

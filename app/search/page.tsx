@@ -15,6 +15,8 @@ import {
 } from '@/lib/api/anime';
 import { fetchMemorials, MemorialItem } from '@/lib/api/memorial';
 import { FolderIcon, SearchPointDown } from '@/assets';
+import Whiteboard from '@/components/ui/Whiteboard';
+import MemorialBtn from '@/components/ui/MemorialBtn';
 
 // Debounce hook
 const useDebounce = (value: string, delay: number) => {
@@ -43,7 +45,7 @@ const useDebounce = (value: string, delay: number) => {
 export default function SearchPage() {
   const router = useRouter();
   const [name, setName] = useState('');
-  const [ani, setAni] = useState('없음');
+  const [ani, setAni] = useState('');
   const [fillDeath, setFillDeath] = useState('모두');
 
   const debouncedName = useDebounce(name, 500);
@@ -198,11 +200,11 @@ export default function SearchPage() {
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                   />
-                  <Dropdown
+                  <Input
                     label="애니메이션"
+                    type="text"
                     value={ani}
-                    options={animeOptions}
-                    onChange={setAni}
+                    onChange={(e) => setAni(e.target.value)}
                   />
                   <Dropdown
                     label="사인"
@@ -214,7 +216,7 @@ export default function SearchPage() {
               </_.SearchSection>
 
               <_.ResultSection>
-                <_.ResultsContainer>
+                <Whiteboard padding="2px">
                   <_.ResultsList>
                     {isLoading ? (
                       <div style={{ padding: '20px', textAlign: 'center' }}>불러오는 중...</div>
@@ -231,41 +233,71 @@ export default function SearchPage() {
                       ))
                     )}
                   </_.ResultsList>
-                  <_.PaginationWrapper>
-                    <_.PageButton
-                      selected={pageNumber === 1}
-                      onClick={() => setPageNumber(1)}
-                    >
-                      1
-                    </_.PageButton>
-                    <_.PageDots>...</_.PageDots>
-                    {pageNumber > 1 && (
-                      <_.PageButton onClick={() => setPageNumber(pageNumber - 1)}>
-                        {pageNumber - 1}
-                      </_.PageButton>
-                    )}
-                    {pageNumber !== 1 && pageNumber !== maxPage && (
-                      <_.PageButton
-                        selected
-                        onClick={() => setPageNumber(pageNumber)}
-                      >
-                        {pageNumber}
-                      </_.PageButton>
-                    )}
-                    {pageNumber < maxPage && (
-                      <_.PageButton onClick={() => setPageNumber(pageNumber + 1)}>
-                        {pageNumber + 1}
-                      </_.PageButton>
-                    )}
-                    <_.PageDots>...</_.PageDots>
-                    <_.PageButton
-                      selected={pageNumber === maxPage}
-                      onClick={() => setPageNumber(maxPage)}
-                    >
-                      {maxPage}
-                    </_.PageButton>
-                  </_.PaginationWrapper>
-                </_.ResultsContainer>
+                </Whiteboard>
+                <_.PaginationWrapper>
+                  <MemorialBtn
+                    name={`1`}
+                    selected={false}
+                    type="menu"
+                    onClick={() => {
+                      setPageNumber(1);
+                    }}
+                    active={true}
+                    width="32px"
+                    height="32px"
+                    fontSize="16px"
+                  />
+                  <_.PageDots>...</_.PageDots>
+                  <MemorialBtn
+                    name={`${pageNumber - 1}`}
+                    selected={false}
+                    type={pageNumber === 1 ? 'hidden' : 'menu'}
+                    onClick={() => {
+                      setPageNumber(pageNumber - 1);
+                    }}
+                    active={true}
+                    width="32px"
+                    height="32px"
+                    fontSize="16px"
+                  />
+                  <MemorialBtn
+                    name={`${pageNumber}`}
+                    selected={true}
+                    type="menu"
+                    onClick={() => {
+                      setPageNumber(pageNumber);
+                    }}
+                    active={true}
+                    width="32px"
+                    height="32px"
+                    fontSize="16px"
+                  />
+                  <MemorialBtn
+                    name={`${pageNumber + 1}`}
+                    selected={false}
+                    type={pageNumber === maxPage ? 'hidden' : 'menu'}
+                    onClick={() => {
+                      setPageNumber(pageNumber + 1);
+                    }}
+                    active={true}
+                    width="32px"
+                    height="32px"
+                    fontSize="16px"
+                  />
+                  <_.PageDots>...</_.PageDots>
+                  <MemorialBtn
+                    name={`${maxPage}`}
+                    selected={false}
+                    type="menu"
+                    onClick={() => {
+                      setPageNumber(maxPage);
+                    }}
+                    active={true}
+                    width="32px"
+                    height="32px"
+                    fontSize="16px"
+                  />
+                </_.PaginationWrapper>
               </_.ResultSection>
             </_.ContentInner>
             <_.Statusbar>
