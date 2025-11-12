@@ -1,6 +1,6 @@
 'use client';
 
-import * as _ from './SearchResultItem.styles';
+import * as _ from './styles';
 
 interface SearchResultItemProps {
   imageUrl: string;
@@ -20,7 +20,10 @@ export default function SearchResultItem({
   return (
     <_.ItemContainer onClick={onClick}>
       <_.ImageWrapper>
-        <img src={imageUrl} alt={name} />
+        <img
+          src={imageUrl}
+          alt={name}
+        />
       </_.ImageWrapper>
       <_.InfoWrapper>
         <_.CharacterName>{name}</_.CharacterName>

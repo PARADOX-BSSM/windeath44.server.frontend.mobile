@@ -2,9 +2,9 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import WindowHeader from '@/components/layout/WindowHeader';
+import WindowHeader from '@/components/layout/WindowHeader/index';
 import MemorialBtn from '@/components/ui/MemorialBtn';
-import Input from '@/components/ui/Input';
+import Input from '@/components/ui/Input/index';
 import { logIn } from '@/lib/api/auth';
 import { WindeathLogo } from '@/assets';
 import * as _ from './styles';

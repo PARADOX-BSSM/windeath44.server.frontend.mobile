@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { colors } from '@/lib/styles/theme';
-import * as _ from './Dropdown.styles';
+import * as _ from './styles';
 
 interface DropdownProps {
   label: string;
@@ -49,7 +49,10 @@ export default function Dropdown({ label, value, options, onChange }: DropdownPr
         <_.OptionsContainer>
           <_.OptionsList>
             {options.map((option) => (
-              <_.Option key={option} onClick={() => handleSelect(option)}>
+              <_.Option
+                key={option}
+                onClick={() => handleSelect(option)}
+              >
                 {option}
               </_.Option>
             ))}

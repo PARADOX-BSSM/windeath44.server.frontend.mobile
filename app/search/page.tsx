@@ -2,10 +2,10 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import WindowHeader from '@/components/layout/WindowHeader';
-import Input from '@/components/ui/Input';
-import Dropdown from '@/components/ui/Dropdown';
-import SearchResultItem from '@/components/common/SearchResultItem';
+import WindowHeader from '@/components/layout/WindowHeader/index';
+import Input from '@/components/ui/Input/index';
+import Dropdown from '@/components/ui/Dropdown/index';
+import SearchResultItem from '@/components/common/SearchResultItem/index';
 import * as _ from './styles';
 import {
   fetchIntegratedCharactersOffset,

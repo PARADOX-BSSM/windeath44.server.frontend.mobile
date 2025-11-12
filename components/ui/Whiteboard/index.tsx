@@ -1,6 +1,6 @@
 'use client';
 
-import * as _ from './Whiteboard.styles';
+import * as _ from './styles';
 
 interface WhiteboardProps {
   children: React.ReactNode;
@@ -10,7 +10,10 @@ interface WhiteboardProps {
 
 export default function Whiteboard({ children, padding, gap }: WhiteboardProps) {
   return (
-    <_.StyledWhiteboard padding={padding} gap={gap}>
+    <_.StyledWhiteboard
+      padding={padding}
+      gap={gap}
+    >
       {children}
     </_.StyledWhiteboard>
   );

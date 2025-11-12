@@ -1,6 +1,6 @@
 'use client';
 
-import * as _ from './RankingList.styles';
+import * as _ from './styles';
 
 interface RankingItem {
   rank: number;
@@ -17,7 +17,10 @@ export default function RankingList({ items }: RankingListProps) {
     <_.Container>
       <_.ItemsWrapper>
         {items.map((item, index) => (
-          <_.RankItem key={item.rank} isFirst={index === 0}>
+          <_.RankItem
+            key={item.rank}
+            isFirst={index === 0}
+          >
             <_.RankNumberWrapper>
               <_.RankNumber>#{item.rank}</_.RankNumber>
             </_.RankNumberWrapper>

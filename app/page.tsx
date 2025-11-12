@@ -1,10 +1,10 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import WindowHeader from '@/components/layout/WindowHeader';
+import WindowHeader from '@/components/layout/WindowHeader/index';
 import MemorialBtn from '@/components/ui/MemorialBtn';
-import Whiteboard from '@/components/ui/Whiteboard';
-import RankingList from '@/components/common/RankingList';
+import Whiteboard from '@/components/ui/Whiteboard/index';
+import RankingList from '@/components/common/RankingList/index';
 import * as _ from './styles';
 
 const todayRankings = [

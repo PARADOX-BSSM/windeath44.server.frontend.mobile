@@ -4,7 +4,7 @@ export const runtime = 'edge';
 
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import WindowHeader from '@/components/layout/WindowHeader';
+import WindowHeader from '@/components/layout/WindowHeader/index';
 import { getMemorial, MemorialData } from '@/lib/api/memorialGet';
 import { getCharacter, CharacterData } from '@/lib/api/character';
 import { getAnimation } from '@/lib/api/animation';

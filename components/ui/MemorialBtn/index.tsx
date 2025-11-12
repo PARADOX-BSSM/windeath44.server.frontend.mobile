@@ -1,6 +1,6 @@
 'use client';
 
-import * as _ from './MemorialBtn.styles';
+import * as _ from './styles';
 
 interface MemorialBtnProps {
   name: string;
@@ -24,25 +24,48 @@ const MemorialBtn = ({
   fontSize = '20px',
 }: MemorialBtnProps) => {
   if (type === 'hidden') {
-    return <_.HiddenBtn width={width} height={height} />;
+    return (
+      <_.HiddenBtn
+        width={width}
+        height={height}
+      />
+    );
   }
   if (type === 'submit') {
     return !active ? (
-      <_.SubmitDefault width={width} height={height} fontSize={fontSize}>
+      <_.SubmitDefault
+        width={width}
+        height={height}
+        fontSize={fontSize}
+      >
         {name}
       </_.SubmitDefault>
     ) : (
-      <_.SubmitActive onClick={onClick} width={width} height={height} fontSize={fontSize}>
+      <_.SubmitActive
+        onClick={onClick}
+        width={width}
+        height={height}
+        fontSize={fontSize}
+      >
         {name}
       </_.SubmitActive>
     );
   } else if (type === 'menu') {
     return !selected ? (
-      <_.Btn onClick={onClick} width={width} height={height} fontSize={fontSize}>
+      <_.Btn
+        onClick={onClick}
+        width={width}
+        height={height}
+        fontSize={fontSize}
+      >
         {name}
       </_.Btn>
     ) : (
-      <_.SelectedBtn width={width} height={height} fontSize={fontSize}>
+      <_.SelectedBtn
+        width={width}
+        height={height}
+        fontSize={fontSize}
+      >
         {name}
       </_.SelectedBtn>
     );

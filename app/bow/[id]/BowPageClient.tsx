@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import WindowHeader from '@/components/layout/WindowHeader';
+import WindowHeader from '@/components/layout/WindowHeader/index';
 import MemorialBtn from '@/components/ui/MemorialBtn';
 import { getBowCount, submitBow, getBowChiefs, BowChief } from '@/lib/api/bow';
 import { getMemorial, MemorialData } from '@/lib/api/memorialGet';

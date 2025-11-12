@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import WindowHeader from '@/components/layout/WindowHeader';
-import Input from '@/components/ui/Input';
+import WindowHeader from '@/components/layout/WindowHeader/index';
+import Input from '@/components/ui/Input/index';
 import { signUp, emailValidationRequest, verifyEmailCode } from '@/lib/api/user';
 import { WindeathLogo } from '@/assets';
 import * as _ from './styles';
