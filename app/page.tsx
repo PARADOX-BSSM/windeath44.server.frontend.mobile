@@ -1,10 +1,12 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
 import WindowHeader from '@/components/layout/WindowHeader/index';
 import MemorialBtn from '@/components/ui/MemorialBtn';
 import Whiteboard from '@/components/ui/Whiteboard/index';
 import RankingList from '@/components/common/RankingList/index';
+import { getAccessToken, logOut } from '@/lib/api/auth';
 import * as _ from './styles';
 
 const todayRankings = [
@@ -15,17 +17,51 @@ const todayRankings = [
 
 export default function Home() {
   const router = useRouter();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+
+    const checkLoginStatus = () => {
+      const token = getAccessToken();
+      setIsLoggedIn(!!token);
+    };
+
+    checkLoginStatus();
+
+    window.addEventListener('focus', checkLoginStatus);
+
+    return () => {
+      window.removeEventListener('focus', checkLoginStatus);
+    };
+  }, []);
 
   const handleSearch = () => {
     router.push('/search');
   };
 
-  // const handleFavorites = () => {
-  //   console.log('즐겨찾기');
-  // };
+  const handleSignUp = () => {
+    router.push('/signup');
+  };
+
+  const handleProfile = () => {
+    // router.push('/profile');
+    alert('준비 중인 기능입니다.');
+  };
 
   const handleLogin = () => {
     router.push('/login');
+  };
+
+  const handleLogout = async () => {
+    try {
+      await logOut();
+      setIsLoggedIn(false);
+      alert('로그아웃되었습니다.');
+    } catch (error) {
+      alert('로그아웃 중 오류가 발생했습니다.');
+    }
   };
 
   return (
@@ -37,7 +73,7 @@ export default function Home() {
             <_.InnerContent>
               <_.TitleSection>
                 <_.MainTitle>최애의 사인</_.MainTitle>
-                <_.Version>ver beta m0.0.1</_.Version>
+                <_.Version>ver b0.0.1</_.Version>
               </_.TitleSection>
 
               <_.ScrollableSection>
@@ -56,13 +92,58 @@ export default function Home() {
                     active={true}
                     width="100%"
                   />
-                  <MemorialBtn
-                    name="로그인"
-                    onClick={handleLogin}
-                    type="submit"
-                    active={true}
-                    width="100%"
-                  />
+                  {!mounted ? (
+                    <>
+                      <MemorialBtn
+                        name="회원가입"
+                        onClick={handleSignUp}
+                        type="submit"
+                        active={true}
+                        width="100%"
+                      />
+                      <MemorialBtn
+                        name="로그인"
+                        onClick={handleLogin}
+                        type="submit"
+                        active={true}
+                        width="100%"
+                      />
+                    </>
+                  ) : isLoggedIn ? (
+                    <>
+                      <MemorialBtn
+                        name="내 컴퓨터"
+                        onClick={handleProfile}
+                        type="submit"
+                        active={true}
+                        width="100%"
+                      />
+                      <MemorialBtn
+                        name="로그아웃"
+                        onClick={handleLogout}
+                        type="submit"
+                        active={true}
+                        width="100%"
+                      />
+                    </>
+                  ) : (
+                    <>
+                      <MemorialBtn
+                        name="회원가입"
+                        onClick={handleSignUp}
+                        type="submit"
+                        active={true}
+                        width="100%"
+                      />
+                      <MemorialBtn
+                        name="로그인"
+                        onClick={handleLogin}
+                        type="submit"
+                        active={true}
+                        width="100%"
+                      />
+                    </>
+                  )}
                 </_.ButtonGroup>
                 <_.ActionsSection>
                   <_.TodaySection>

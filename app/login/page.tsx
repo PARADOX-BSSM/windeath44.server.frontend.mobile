@@ -28,7 +28,8 @@ export default function LoginPage() {
     try {
       await logIn({ id: username, password });
       // 로그인 성공 시 메인 페이지로 이동
-      router.push('/');
+      // window.location.href를 사용하여 페이지를 완전히 새로고침
+      window.location.href = '/';
     } catch (err) {
       setError('로그인에 실패했습니다. 아이디와 비밀번호를 확인해주세요.');
       console.error('Login error:', err);
