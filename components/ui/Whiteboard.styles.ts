@@ -7,6 +7,7 @@ export const StyledWhiteboard = styled.div<{ padding?: string; gap?: string }>`
   background-color: ${colors.white};
   padding: ${(props) => props.padding || '16px'};
   box-shadow: ${shadows.inset};
+  box-sizing: border-box;
   overflow: hidden;
   display: flex;
   flex-direction: column;

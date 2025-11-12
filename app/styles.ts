@@ -69,7 +69,7 @@ export const Version = styled.p`
   font-size: 18px;
   color: ${colors.black};
   margin: 0;
-  width: 115px;
+  width: fit-content;
   line-height: normal;
 `;
 
@@ -78,7 +78,7 @@ export const ScrollableSection = styled.div`
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 32px;
   overflow-y: auto;
   justify-content: center;
 `;
@@ -120,6 +120,16 @@ export const TodaySection = styled.div`
   display: flex;
   flex-direction: column;
   gap: 10px;
+`;
+
+export const TodayText = styled.p`
+  font-family: ${fonts.primary};
+  font-size: 20px;
+  text-align: center;
+  color: ${colors.black};
+  margin: 0;
+  padding: 24px;
+  line-height: normal;
 `;
 
 export const SectionTitle = styled.h2`

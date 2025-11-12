@@ -7,7 +7,6 @@ import Whiteboard from '@/components/ui/Whiteboard';
 import RankingList from '@/components/common/RankingList';
 import * as _ from './styles';
 
-// Mock data for today's memorials
 const todayRankings = [
   { rank: 1, name: '힘멜', count: 1234 },
   { rank: 2, name: '손오공', count: 196 },
@@ -21,10 +20,9 @@ export default function Home() {
     router.push('/search');
   };
 
-  const handleFavorites = () => {
-    console.log('즐겨찾기');
-    // TODO: 즐겨찾기 페이지로 이동
-  };
+  // const handleFavorites = () => {
+  //   console.log('즐겨찾기');
+  // };
 
   const handleLogin = () => {
     router.push('/login');
@@ -50,34 +48,29 @@ export default function Home() {
                   </_.DescriptionText>
                 </Whiteboard>
 
+                <_.ButtonGroup>
+                  <MemorialBtn
+                    name="추모관 검색"
+                    onClick={handleSearch}
+                    type="submit"
+                    active={true}
+                    width="100%"
+                  />
+                  <MemorialBtn
+                    name="로그인"
+                    onClick={handleLogin}
+                    type="submit"
+                    active={true}
+                    width="100%"
+                  />
+                </_.ButtonGroup>
                 <_.ActionsSection>
-                  <_.ButtonGroup>
-                    <MemorialBtn
-                      name="추모관 검색"
-                      onClick={handleSearch}
-                      type="submit"
-                      active={true}
-                      width="100%"
-                    />
-                    <MemorialBtn
-                      name="즐겨찾기"
-                      onClick={handleFavorites}
-                      type="submit"
-                      active={true}
-                      width="100%"
-                    />
-                    <MemorialBtn
-                      name="로그인"
-                      onClick={handleLogin}
-                      type="submit"
-                      active={true}
-                      width="100%"
-                    />
-                  </_.ButtonGroup>
-
                   <_.TodaySection>
                     <_.SectionTitle>오늘의 추모관</_.SectionTitle>
-                    <RankingList items={todayRankings} />
+                    <Whiteboard padding="2px">
+                      {/* <RankingList items={todayRankings} /> */}
+                      <_.TodayText>준비 중인 기능입니다.</_.TodayText>
+                    </Whiteboard>
                   </_.TodaySection>
                 </_.ActionsSection>
               </_.ScrollableSection>
