@@ -5,7 +5,7 @@ export const DropdownWrapper = styled.div`
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
   position: relative;
 `;
 
@@ -68,7 +68,8 @@ export const ArrowButton = styled.div`
   justify-content: center;
   align-items: center;
   background: ${colors.lightprimary};
-  box-shadow: inset -1px -1px 0px 0px ${colors.black},
+  box-shadow:
+    inset -1px -1px 0px 0px ${colors.black},
     inset 1px 1px 0px 0px #ffffff,
     inset -2px -2px 0px 0px ${colors.darkprimary},
     inset 2px 2px 0px 0px ${colors.secondary};
@@ -83,7 +84,7 @@ export const ArrowButton = styled.div`
 
 export const OptionsContainer = styled.div`
   position: absolute;
-  top: calc(100% + 6px);
+  top: calc(100% + 0px);
   left: 0;
   width: 100%;
   box-sizing: border-box;
@@ -93,7 +94,7 @@ export const OptionsContainer = styled.div`
 export const OptionsList = styled.div`
   width: 100%;
   background-color: #ffffff;
-  border-width: 0.094rem;
+  border-width: 1px;
   border-style: solid;
   border-color: ${colors.black};
   box-sizing: border-box;
@@ -103,7 +104,7 @@ export const OptionsList = styled.div`
 `;
 
 export const Option = styled.div`
-  padding: 0.1rem;
+  padding: 4px;
   font-family: ${fonts.primary};
   font-size: 16px;
   color: ${colors.black};

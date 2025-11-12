@@ -341,12 +341,6 @@ export default function SearchPage() {
                 </_.StatusIcon>
                 <_.StatusText>{charactersWithMemorials.length} 개체</_.StatusText>
               </_.StatusContent>
-              <_.DragIcon>
-                <img
-                  src={SearchPointDown.src}
-                  alt="drag"
-                />
-              </_.DragIcon>
             </_.Statusbar>
           </_.MainContent>
         </_.ContentWrapper>
