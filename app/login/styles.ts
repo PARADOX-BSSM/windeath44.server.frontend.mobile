@@ -40,6 +40,7 @@ export const MainContent = styled.div`
 `;
 
 export const LogoSection = styled.div`
+  background-color: white;
   width: 100%;
   height: 108px;
   display: flex;
