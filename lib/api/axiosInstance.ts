@@ -8,12 +8,30 @@ const axiosInstance = axios.create({
   },
 });
 
+// Helper function to get cookie
+const getCookie = (name: string): string | null => {
+  if (typeof window === 'undefined') return null;
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop()?.split(';').shift() || null;
+  return null;
+};
+
+// Helper function to delete cookie
+const deleteCookie = (name: string) => {
+  if (typeof window === 'undefined') return;
+  document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;`;
+};
+
 // Request interceptor
 axiosInstance.interceptors.request.use(
   (config) => {
-    // Add auth token if available
-    const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
-    if (token) {
+    // Add auth token if available, except for auth endpoints
+    const token = getCookie('access_token');
+    const url = config.url ?? '';
+    const isAuthEndpoint = url.includes('/login') || url.includes('/reissue') || url.includes('/register');
+
+    if (token && !isAuthEndpoint) {
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
@@ -33,7 +51,7 @@ axiosInstance.interceptors.response.use(
     if (error.response?.status === 401) {
       // Handle unauthorized
       if (typeof window !== 'undefined') {
-        localStorage.removeItem('accessToken');
+        deleteCookie('access_token');
         window.location.href = '/login';
       }
     }

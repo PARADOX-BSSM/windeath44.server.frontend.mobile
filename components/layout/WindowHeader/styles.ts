@@ -49,7 +49,7 @@ export const WindowButtons = styled.div`
 export const WindowBtn = styled.button`
   width: 25.724px;
   height: 25.724px;
-  border: 1px solid ${colors.stroke};
+  border: 0px solid ${colors.stroke};
   background-color: transparent;
   position: relative;
   cursor: pointer;

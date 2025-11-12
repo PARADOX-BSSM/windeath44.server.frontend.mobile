@@ -50,7 +50,8 @@ export const ScrollableArea = styled.div`
   flex: 1;
   width: 100%;
   background-color: ${colors.white};
-  box-shadow: inset -1px -1px 0px 0px #ffffff,
+  box-shadow:
+    inset -1px -1px 0px 0px #ffffff,
     inset 1px 1px 0px 0px ${colors.black},
     inset -2px -2px 0px 0px ${colors.darkprimary},
     inset 2px 2px 0px 0px ${colors.darkprimary};
@@ -80,7 +81,8 @@ export const ScrollContent = styled.div`
 
   &::-webkit-scrollbar-thumb {
     background: ${colors.lightprimary};
-    box-shadow: inset -1px -1px 0px 0px ${colors.black},
+    box-shadow:
+      inset -1px -1px 0px 0px ${colors.black},
       inset 1px 1px 0px 0px #ffffff,
       inset -2px -2px 0px 0px ${colors.darkprimary},
       inset 2px 2px 0px 0px ${colors.secondary};
@@ -320,7 +322,8 @@ export const BowButton = styled.button`
   align-items: center;
   justify-content: center;
   align-self: center;
-  box-shadow: inset -1px -1px 0px 0px ${colors.black},
+  box-shadow:
+    inset -1px -1px 0px 0px ${colors.black},
     inset 1px 1px 0px 0px #ffffff,
     inset -2px -2px 0px 0px ${colors.darkprimary},
     inset 2px 2px 0px 0px ${colors.secondary};
@@ -330,7 +333,8 @@ export const BowButton = styled.button`
   }
 
   &:active {
-    box-shadow: inset 1px 1px 0px 0px ${colors.black},
+    box-shadow:
+      inset 1px 1px 0px 0px ${colors.black},
       inset -1px -1px 0px 0px #ffffff,
       inset 2px 2px 0px 0px ${colors.darkprimary},
       inset -2px -2px 0px 0px ${colors.secondary};
@@ -355,9 +359,9 @@ export const CommentSection = styled.section`
   gap: 20px;
 `;
 
-export const SectionTitle = styled.h2`
+export const SectionTitle = styled.p`
   font-family: ${fonts.primary};
-  font-size: 32px;
+  font-size: 24px;
   color: ${colors.black};
   margin: 0;
   line-height: normal;

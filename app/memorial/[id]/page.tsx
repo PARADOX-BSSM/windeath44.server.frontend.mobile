@@ -3,18 +3,25 @@
 export const runtime = 'edge';
 
 import { useState, useEffect } from 'react';
-import { useRouter, useParams } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import WindowHeader from '@/components/layout/WindowHeader/index';
 import { getMemorial, MemorialData } from '@/lib/api/memorialGet';
 import { getCharacter, CharacterData } from '@/lib/api/character';
 import { getAnimation } from '@/lib/api/animation';
-import { getMemorialComments, MemorialComment } from '@/lib/api/memorialComments';
+import {
+  getMemorialComments,
+  MemorialComment,
+  writeMemorialComment,
+  updateMemorialComment,
+  deleteMemorialComment,
+  likeMemorialComment,
+} from '@/lib/api/memorialComments';
+import { getUsers, UserData, getCurrentUser } from '@/lib/api/user';
 import { parseMemorialContent, extractTableOfContents } from '@/lib/utils/parseMemorialContent';
 import { MemorialRibbon } from '@/assets';
 import * as _ from './styles';
 
 export default function MemorialPage() {
-  const router = useRouter();
   const params = useParams();
   const memorialId = params?.id as string;
 
@@ -26,8 +33,13 @@ export default function MemorialPage() {
   const [hasNextComment, setHasNextComment] = useState(false);
   const [commentContent, setCommentContent] = useState('');
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [userProfiles, setUserProfiles] = useState<Map<string, UserData>>(new Map());
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [replyingTo, setReplyingTo] = useState<number | null>(null);
+  const [replyContent, setReplyContent] = useState('');
+  const [editingCommentId, setEditingCommentId] = useState<number | null>(null);
+  const [editContent, setEditContent] = useState('');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -58,17 +70,40 @@ export default function MemorialPage() {
           memorialId: Number(memorialId),
           size: 10,
         });
-        setComments(commentsResponse.data.data);
+        const commentData = commentsResponse.data.data;
+        setComments(commentData);
         setHasNextComment(commentsResponse.data.hasNext);
+
+        // Collect all unique userIds from comments and their children
+        const userIds = new Set<string>();
+        commentData.forEach((comment) => {
+          userIds.add(comment.userId);
+          comment.children?.forEach((child) => {
+            userIds.add(child.userId);
+          });
+        });
+
+        // Fetch user profiles for all userIds
+        if (userIds.size > 0) {
+          try {
+            const users = await getUsers(Array.from(userIds));
+            const profileMap = new Map<string, UserData>();
+            users.forEach((user) => {
+              profileMap.set(user.userId, user);
+            });
+            setUserProfiles(profileMap);
+          } catch (err) {
+            console.error('Failed to fetch user profiles:', err);
+          }
+        }
 
         // Get current user info (optional - for edit/delete permissions)
         try {
           const { getAccessToken } = await import('@/lib/api/auth');
           const token = getAccessToken();
           if (token) {
-            // TODO: Implement getCurrentUser API call
-            // For now, set to null
-            setCurrentUserId(null);
+            const currentUser = await getCurrentUser();
+            setCurrentUserId(currentUser.userId);
           }
         } catch (err) {
           console.log('User not logged in');
@@ -94,23 +129,260 @@ export default function MemorialPage() {
         cursorId: lastCommentId,
         size: 10,
       });
-      setComments((prev) => [...prev, ...commentsResponse.data.data]);
+      const newComments = commentsResponse.data.data;
+      setComments((prev) => [...prev, ...newComments]);
       setHasNextComment(commentsResponse.data.hasNext);
+
+      // Fetch user profiles for new comments
+      const newUserIds = new Set<string>();
+      newComments.forEach((comment) => {
+        if (!userProfiles.has(comment.userId)) {
+          newUserIds.add(comment.userId);
+        }
+        comment.children?.forEach((child) => {
+          if (!userProfiles.has(child.userId)) {
+            newUserIds.add(child.userId);
+          }
+        });
+      });
+
+      if (newUserIds.size > 0) {
+        try {
+          const users = await getUsers(Array.from(newUserIds));
+          setUserProfiles((prev) => {
+            const newMap = new Map(prev);
+            users.forEach((user) => {
+              newMap.set(user.userId, user);
+            });
+            return newMap;
+          });
+        } catch (err) {
+          console.error('Failed to fetch user profiles:', err);
+        }
+      }
     } catch (err) {
       console.error('Error loading more comments:', err);
     }
   };
 
-  const handleCommentSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleCommentSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!commentContent.trim()) return;
-    // TODO: Implement comment submission
-    console.log('Submit comment:', commentContent);
+
+    // 이전 상태 저장 (롤백용)
+    const previousComments = [...comments];
+    const previousContent = commentContent;
+
+    // 임시 댓글 생성 (낙관적 업데이트)
+    const tempComment: MemorialComment = {
+      commentId: -Date.now(), // 임시 음수 ID
+      memorialId: Number(memorialId),
+      userId: currentUserId || 'unknown',
+      content: previousContent,
+      likes: 0,
+      isLiked: false,
+      parentId: null,
+      createdAt: new Date().toISOString(),
+      children: [],
+    };
+
+    // 즉시 댓글 추가 (낙관적 업데이트)
+    setComments((prev) => [...prev, tempComment]);
     setCommentContent('');
+
+    try {
+      await writeMemorialComment({
+        memorialId: Number(memorialId),
+        content: previousContent,
+      });
+
+      // 댓글 작성 성공 후 댓글 목록 새로고침
+      const commentsResponse = await getMemorialComments({
+        memorialId: Number(memorialId),
+        size: 10,
+      });
+      setComments(commentsResponse.data.data);
+      setHasNextComment(commentsResponse.data.hasNext);
+    } catch (err) {
+      // 에러 발생 시 이전 상태로 롤백
+      setComments(previousComments);
+      setCommentContent(previousContent);
+      console.error('댓글 작성 중 오류:', err);
+      alert('댓글 작성 중 오류가 발생했습니다.');
+    }
   };
 
-  const handleBowClick = () => {
-    router.push(`/bow/${memorialId}`);
+  const handleReplySubmit = async (parentCommentId: number) => {
+    if (!replyContent.trim()) return;
+
+    // 이전 상태 저장 (롤백용)
+    const previousComments = [...comments];
+    const previousReplyContent = replyContent;
+
+    // 임시 답글 생성 (낙관적 업데이트)
+    const tempReply: MemorialComment = {
+      commentId: -Date.now(), // 임시 음수 ID
+      memorialId: Number(memorialId),
+      userId: currentUserId || 'unknown',
+      content: previousReplyContent,
+      likes: 0,
+      isLiked: false,
+      parentId: parentCommentId,
+      createdAt: new Date().toISOString(),
+      children: [],
+    };
+
+    // 즉시 답글 추가 (낙관적 업데이트)
+    setComments((prev) =>
+      prev.map((comment) => {
+        if (comment.commentId === parentCommentId) {
+          return {
+            ...comment,
+            children: [...comment.children, tempReply],
+          };
+        }
+        return comment;
+      })
+    );
+    setReplyContent('');
+    setReplyingTo(null);
+
+    try {
+      await writeMemorialComment({
+        memorialId: Number(memorialId),
+        content: previousReplyContent,
+        parentCommentId,
+      });
+
+      // 답글 작성 성공 후 댓글 목록 새로고침
+      const commentsResponse = await getMemorialComments({
+        memorialId: Number(memorialId),
+        size: 10,
+      });
+      setComments(commentsResponse.data.data);
+      setHasNextComment(commentsResponse.data.hasNext);
+    } catch (err) {
+      // 에러 발생 시 이전 상태로 롤백
+      setComments(previousComments);
+      setReplyContent(previousReplyContent);
+      setReplyingTo(parentCommentId);
+      console.error('답글 작성 중 오류:', err);
+      alert('답글 작성 중 오류가 발생했습니다.');
+    }
+  };
+
+  const handleEditSubmit = async (commentId: number) => {
+    if (!editContent.trim()) return;
+
+    // 이전 상태 저장 (롤백용)
+    const previousComments = [...comments];
+    const previousEditContent = editContent;
+
+    // 재귀적으로 댓글 업데이트 함수
+    const updateCommentRecursive = (comments: MemorialComment[]): MemorialComment[] => {
+      return comments.map((comment) => {
+        if (comment.commentId === commentId) {
+          return { ...comment, content: previousEditContent };
+        }
+        if (comment.children && comment.children.length > 0) {
+          return {
+            ...comment,
+            children: updateCommentRecursive(comment.children),
+          };
+        }
+        return comment;
+      });
+    };
+
+    // 즉시 수정 (낙관적 업데이트)
+    setComments((prev) => updateCommentRecursive(prev));
+    setEditContent('');
+    setEditingCommentId(null);
+
+    try {
+      await updateMemorialComment({
+        commentId,
+        content: previousEditContent,
+      });
+    } catch (err) {
+      // 에러 발생 시 이전 상태로 롤백
+      setComments(previousComments);
+      console.error('댓글 수정 중 오류:', err);
+      alert('댓글 수정 중 오류가 발생했습니다.');
+    }
+  };
+
+  const handleDeleteSubmit = async (commentId: number) => {
+    if (!confirm('정말 삭제하시겠습니까?')) return;
+
+    // 이전 상태 저장 (롤백용)
+    const previousComments = [...comments];
+
+    // 재귀적으로 댓글 삭제 함수
+    const deleteCommentRecursive = (comments: MemorialComment[]): MemorialComment[] => {
+      // 최상위 레벨에서 삭제
+      const filtered = comments.filter((comment) => comment.commentId !== commentId);
+
+      // children에서 재귀적으로 삭제
+      return filtered.map((comment) => {
+        if (comment.children && comment.children.length > 0) {
+          return {
+            ...comment,
+            children: deleteCommentRecursive(comment.children),
+          };
+        }
+        return comment;
+      });
+    };
+
+    // 즉시 삭제 (낙관적 업데이트)
+    setComments((prev) => deleteCommentRecursive(prev));
+
+    try {
+      await deleteMemorialComment({ commentId });
+    } catch (err) {
+      // 에러 발생 시 이전 상태로 롤백
+      setComments(previousComments);
+      console.error('댓글 삭제 중 오류:', err);
+      alert('댓글 삭제 중 오류가 발생했습니다.');
+    }
+  };
+
+  const handleLikeToggle = async (commentId: number, isLiked: boolean) => {
+    // 이전 상태 저장 (롤백용)
+    const previousComments = [...comments];
+
+    // 재귀적으로 좋아요 토글 함수
+    const toggleLikeRecursive = (comments: MemorialComment[]): MemorialComment[] => {
+      return comments.map((comment) => {
+        if (comment.commentId === commentId) {
+          return {
+            ...comment,
+            isLiked: !isLiked,
+            likes: isLiked ? comment.likes - 1 : comment.likes + 1,
+          };
+        }
+        if (comment.children && comment.children.length > 0) {
+          return {
+            ...comment,
+            children: toggleLikeRecursive(comment.children),
+          };
+        }
+        return comment;
+      });
+    };
+
+    // 즉시 토글 (낙관적 업데이트)
+    setComments((prev) => toggleLikeRecursive(prev));
+
+    try {
+      await likeMemorialComment({ commentId, isLiked });
+    } catch (err) {
+      // 에러 발생 시 이전 상태로 롤백
+      setComments(previousComments);
+      console.error('좋아요 토글 중 오류:', err);
+      alert('좋아요 처리 중 오류가 발생했습니다.');
+    }
   };
 
   if (isLoading) {
@@ -219,7 +491,7 @@ export default function MemorialPage() {
                     </_.ContentContainer>
                   </_.Section>
 
-                  <_.BowButton onClick={handleBowClick}>절 하러가기</_.BowButton>
+                  {/* <_.BowButton onClick={handleBowClick}>절 하러가기</_.BowButton> */}
 
                   <_.CommentSection>
                     <_.SectionTitle>추모글</_.SectionTitle>
@@ -240,57 +512,201 @@ export default function MemorialPage() {
 
                         {comments.map((comment) => {
                           const isOwner = currentUserId === comment.userId;
+                          const userProfile = userProfiles.get(comment.userId);
+                          const isEditing = editingCommentId === comment.commentId;
+                          const isReplying = replyingTo === comment.commentId;
+
                           return (
                             <div key={comment.commentId}>
                               <_.CommentItem>
-                                <_.ProfileImg imgUrl={comment.profileImageUrl} />
+                                <_.ProfileImg imgUrl={userProfile?.profile || ''} />
                                 <_.TextBox>
                                   <_.NickNameContainer>
                                     <_.CommentUser>@{comment.userId}</_.CommentUser>
                                   </_.NickNameContainer>
-                                  <_.CommentText>{comment.content}</_.CommentText>
-                                  <_.ActionButtonGroup>
+                                  {isEditing ? (
                                     <div
-                                      style={{ display: 'flex', gap: '8px', alignItems: 'center' }}
+                                      style={{
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        gap: '8px',
+                                        width: '100%',
+                                      }}
                                     >
-                                      <_.LikeButton $isLiked={comment.isLiked}>
-                                        {comment.isLiked ? '♥' : '♡'} {comment.likes}
-                                      </_.LikeButton>
-                                      <_.ReplyButton>답글 입력</_.ReplyButton>
-                                    </div>
-                                    {isOwner && (
+                                      <_.CommentInput
+                                        type="text"
+                                        value={editContent}
+                                        onChange={(e) => setEditContent(e.target.value)}
+                                        maxLength={250}
+                                        placeholder="댓글을 수정하세요."
+                                      />
                                       <div style={{ display: 'flex', gap: '8px' }}>
-                                        <_.EditButton>수정</_.EditButton>
-                                        <_.DeleteButton>삭제</_.DeleteButton>
+                                        <_.EditButton onClick={() => handleEditSubmit(comment.commentId)}>
+                                          저장
+                                        </_.EditButton>
+                                        <_.DeleteButton
+                                          onClick={() => {
+                                            setEditingCommentId(null);
+                                            setEditContent('');
+                                          }}
+                                        >
+                                          취소
+                                        </_.DeleteButton>
                                       </div>
-                                    )}
-                                  </_.ActionButtonGroup>
+                                    </div>
+                                  ) : (
+                                    <>
+                                      <_.CommentText>{comment.content}</_.CommentText>
+                                      <_.ActionButtonGroup>
+                                        <div
+                                          style={{ display: 'flex', gap: '8px', alignItems: 'center' }}
+                                        >
+                                          <_.LikeButton
+                                            $isLiked={comment.isLiked}
+                                            onClick={() => handleLikeToggle(comment.commentId, comment.isLiked)}
+                                          >
+                                            {comment.isLiked ? '♥' : '♡'} {comment.likes}
+                                          </_.LikeButton>
+                                          <_.ReplyButton
+                                            onClick={() => {
+                                              setReplyingTo(comment.commentId);
+                                              setReplyContent('');
+                                            }}
+                                          >
+                                            답글 입력
+                                          </_.ReplyButton>
+                                        </div>
+                                        {isOwner && (
+                                          <div style={{ display: 'flex', gap: '8px' }}>
+                                            <_.EditButton
+                                              onClick={() => {
+                                                setEditingCommentId(comment.commentId);
+                                                setEditContent(comment.content);
+                                              }}
+                                            >
+                                              수정
+                                            </_.EditButton>
+                                            <_.DeleteButton
+                                              onClick={() => handleDeleteSubmit(comment.commentId)}
+                                            >
+                                              삭제
+                                            </_.DeleteButton>
+                                          </div>
+                                        )}
+                                      </_.ActionButtonGroup>
+                                    </>
+                                  )}
                                 </_.TextBox>
                               </_.CommentItem>
+
+                              {/* 답글 입력 UI */}
+                              {isReplying && (
+                                <_.CommentItem $isReply>
+                                  <_.ProfileImg imgUrl="" />
+                                  <_.TextBox>
+                                    <div
+                                      style={{
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        gap: '8px',
+                                        width: '100%',
+                                      }}
+                                    >
+                                      <_.CommentInput
+                                        type="text"
+                                        value={replyContent}
+                                        onChange={(e) => setReplyContent(e.target.value)}
+                                        maxLength={250}
+                                        placeholder="답글을 입력하세요."
+                                      />
+                                      <div style={{ display: 'flex', gap: '8px' }}>
+                                        <_.EditButton onClick={() => handleReplySubmit(comment.commentId)}>
+                                          작성
+                                        </_.EditButton>
+                                        <_.DeleteButton
+                                          onClick={() => {
+                                            setReplyingTo(null);
+                                            setReplyContent('');
+                                          }}
+                                        >
+                                          취소
+                                        </_.DeleteButton>
+                                      </div>
+                                    </div>
+                                  </_.TextBox>
+                                </_.CommentItem>
+                              )}
+
+                              {/* 답글 목록 */}
                               {comment.children?.map((child) => {
                                 const isChildOwner = currentUserId === child.userId;
+                                const childUserProfile = userProfiles.get(child.userId);
+                                const isChildEditing = editingCommentId === child.commentId;
+
                                 return (
                                   <_.CommentItem
                                     key={child.commentId}
                                     $isReply
                                   >
-                                    <_.ProfileImg imgUrl={child.profileImageUrl} />
+                                    <_.ProfileImg imgUrl={childUserProfile?.profile || ''} />
                                     <_.TextBox>
                                       <_.NickNameContainer>
                                         <_.CommentUser>@{child.userId}</_.CommentUser>
                                       </_.NickNameContainer>
-                                      <_.CommentText>{child.content}</_.CommentText>
-                                      <_.ActionButtonGroup>
-                                        <_.LikeButton $isLiked={child.isLiked}>
-                                          {child.isLiked ? '♥' : '♡'} {child.likes}
-                                        </_.LikeButton>
-                                        {isChildOwner && (
+                                      {isChildEditing ? (
+                                        <div
+                                          style={{
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            gap: '8px',
+                                            width: '100%',
+                                          }}
+                                        >
+                                          <_.CommentInput
+                                            type="text"
+                                            value={editContent}
+                                            onChange={(e) => setEditContent(e.target.value)}
+                                            maxLength={250}
+                                            placeholder="답글을 수정하세요."
+                                          />
                                           <div style={{ display: 'flex', gap: '8px' }}>
-                                            <_.EditButton>수정</_.EditButton>
-                                            <_.DeleteButton>삭제</_.DeleteButton>
+                                            <_.EditButton onClick={() => handleEditSubmit(child.commentId)}>
+                                              저장
+                                            </_.EditButton>
+                                            <_.DeleteButton
+                                              onClick={() => {
+                                                setEditingCommentId(null);
+                                                setEditContent('');
+                                              }}
+                                            >
+                                              취소
+                                            </_.DeleteButton>
                                           </div>
-                                        )}
-                                      </_.ActionButtonGroup>
+                                        </div>
+                                      ) : (
+                                        <>
+                                          <_.CommentText>{child.content}</_.CommentText>
+                                          {isChildOwner && (
+                                            <_.ActionButtonGroup>
+                                              <div style={{ display: 'flex', gap: '8px' }}>
+                                                <_.EditButton
+                                                  onClick={() => {
+                                                    setEditingCommentId(child.commentId);
+                                                    setEditContent(child.content);
+                                                  }}
+                                                >
+                                                  수정
+                                                </_.EditButton>
+                                                <_.DeleteButton
+                                                  onClick={() => handleDeleteSubmit(child.commentId)}
+                                                >
+                                                  삭제
+                                                </_.DeleteButton>
+                                              </div>
+                                            </_.ActionButtonGroup>
+                                          )}
+                                        </>
+                                      )}
                                     </_.TextBox>
                                   </_.CommentItem>
                                 );

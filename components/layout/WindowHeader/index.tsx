@@ -1,6 +1,6 @@
 'use client';
 
-import { MinIcon, FullIcon, ExitIcon, WindeathLogo } from '@/assets';
+import { MinIcon, FullIcon, ExitIcon, HeartIcon } from '@/assets';
 import * as _ from './styles';
 
 interface WindowHeaderProps {
@@ -11,7 +11,7 @@ interface WindowHeaderProps {
 }
 
 export default function WindowHeader({
-  logoSrc = WindeathLogo.src,
+  logoSrc = HeartIcon.src,
   onMinimize,
   onMaximize,
   onClose,

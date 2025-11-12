@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axiosInstance from './axiosInstance';
 import { memorial } from './config';
 
 export interface MemorialData {
@@ -20,6 +20,6 @@ interface MemorialDataResponse {
 }
 
 export const getMemorial = async (id: number): Promise<MemorialDataResponse> => {
-  const response = await axios.get(`${memorial}/${id}`);
+  const response = await axiosInstance.get(`${memorial}/${id}`);
   return response.data;
 };

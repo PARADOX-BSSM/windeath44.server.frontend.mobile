@@ -1,4 +1,6 @@
 import axios from 'axios';
+import axiosInstance from './axiosInstance';
+import qs from 'qs';
 import { user, auth } from './config';
 
 interface SignUpParams {
@@ -15,6 +17,19 @@ interface EmailValidationParams {
 interface VerifyEmailParams {
   email: string;
   authorizationCode: string;
+}
+
+export interface UserData {
+  userId: string;
+  name: string;
+  realinToken: number;
+  profile: string;
+  role: string;
+}
+
+interface GetUsersResponse {
+  message: string;
+  data: UserData[];
 }
 
 export const signUp = async ({
@@ -71,6 +86,34 @@ export const verifyEmailCode = async ({
     });
     return true;
   } catch (error) {
+    throw error;
+  }
+};
+
+export const getUsers = async (userIds: string[]): Promise<UserData[]> => {
+  try {
+    const response = await axios.get<GetUsersResponse>(`${user}`, {
+      params: { userIds },
+      paramsSerializer: (params) => qs.stringify(params, { arrayFormat: 'repeat' }),
+    });
+    return response.data.data;
+  } catch (error) {
+    console.error('Failed to fetch users:', error);
+    throw error;
+  }
+};
+
+interface GetCurrentUserResponse {
+  message: string;
+  data: UserData;
+}
+
+export const getCurrentUser = async (): Promise<UserData> => {
+  try {
+    const response = await axiosInstance.get<GetCurrentUserResponse>(`${user}/profile`);
+    return response.data.data;
+  } catch (error) {
+    console.error('Failed to fetch current user:', error);
     throw error;
   }
 };
