@@ -37,15 +37,16 @@ export const MainContent = styled.div`
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  padding: 8px;
 `;
 
 export const ContentInner = styled.div`
   flex: 1;
   width: 100%;
-  padding: 15px 16px 5px;
+  padding: 4px 0;
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 8px;
   overflow: hidden;
 `;
 
