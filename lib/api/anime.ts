@@ -98,3 +98,8 @@ export const fetchAnimesPage = async ({
   }
   return (await res.json()) as AnimesResponse;
 };
+
+export const fetchAnimeById = async (animeId: number): Promise<AnimeItem> => {
+  const res = await axios.get(`${anime}/${animeId}`);
+  return res.data.data;
+};

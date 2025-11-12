@@ -1,7 +1,7 @@
 import styled from '@emotion/styled';
 import { colors, shadows } from '@/lib/styles/theme';
 
-export const StyledWhiteboard = styled.div<{ padding?: string; gap?: string }>`
+export const StyledWhiteboard = styled.div<{ padding?: string; gap?: string; height?: string }>`
   position: relative;
   width: 100%;
   background-color: ${colors.white};
@@ -12,4 +12,5 @@ export const StyledWhiteboard = styled.div<{ padding?: string; gap?: string }>`
   display: flex;
   flex-direction: column;
   gap: ${(props) => props.gap || '0'};
+  height: ${(props) => props.height || 'auto'};
 `;

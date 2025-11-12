@@ -60,6 +60,7 @@ export const SearchSection = styled.div`
 export const ResultSection = styled.div`
   flex: 1;
   width: 100%;
+  height: fit-content;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -73,7 +74,8 @@ export const FilterBox = styled.div`
   display: flex;
   flex-direction: column;
   gap: 15px;
-  box-shadow: inset -1px -1px 0px 0px ${colors.black},
+  box-shadow:
+    inset -1px -1px 0px 0px ${colors.black},
     inset 1px 1px 0px 0px #ffffff,
     inset -2px -2px 0px 0px ${colors.darkprimary},
     inset 2px 2px 0px 0px ${colors.secondary};
@@ -86,7 +88,8 @@ export const ResultsContainer = styled.div`
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  box-shadow: inset -1px -1px 0px 0px #ffffff,
+  box-shadow:
+    inset -1px -1px 0px 0px #ffffff,
     inset 1px 1px 0px 0px ${colors.black},
     inset -2px -2px 0px 0px ${colors.darkprimary},
     inset 2px 2px 0px 0px ${colors.darkprimary};
@@ -151,7 +154,9 @@ export const Statusbar = styled.div`
   display: flex;
   align-items: center;
   position: relative;
-  box-shadow: inset -1.5px -1.5px 0px 0px #ffffff, inset 1.5px 1.5px 0px 0px #808080;
+  box-shadow:
+    inset -1.5px -1.5px 0px 0px #ffffff,
+    inset 1.5px 1.5px 0px 0px #808080;
 `;
 
 export const StatusContent = styled.div`

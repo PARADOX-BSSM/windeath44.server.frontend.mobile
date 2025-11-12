@@ -10,6 +10,7 @@ import * as _ from './styles';
 import {
   fetchIntegratedCharactersOffset,
   fetchAnimesPage,
+  fetchAnimeById,
   Character,
   AnimeItem,
 } from '@/lib/api/anime';
@@ -131,7 +132,32 @@ export default function SearchPage() {
         if (!aborted) {
           const values = integrated?.data?.values || [];
           const total = integrated?.data?.total || 0;
-          setCharacters(values);
+
+          // Fetch anime data for each character
+          const charactersWithAnimeData = await Promise.all(
+            values.map(async (character) => {
+              try {
+                const animeData = await fetchAnimeById(character.animeId);
+                return {
+                  ...character,
+                  animeName: animeData.name,
+                  genres: animeData.genres,
+                };
+              } catch (error) {
+                console.error(
+                  `Failed to fetch anime data for animeId ${character.animeId}:`,
+                  error,
+                );
+                return {
+                  ...character,
+                  animeName: '',
+                  genres: [],
+                };
+              }
+            }),
+          );
+
+          setCharacters(charactersWithAnimeData);
           setMaxPage(total ? Math.ceil(total / size) : 1);
 
           // Fetch memorials for these characters
@@ -216,10 +242,15 @@ export default function SearchPage() {
               </_.SearchSection>
 
               <_.ResultSection>
-                <Whiteboard padding="2px">
+                <Whiteboard
+                  padding="2px"
+                  height="fit-content"
+                >
                   <_.ResultsList>
                     {isLoading ? (
-                      <div style={{ padding: '20px', textAlign: 'center' }}>불러오는 중...</div>
+                      <div style={{ padding: '20px', textAlign: 'center', height: '100vh' }}>
+                        불러오는 중...
+                      </div>
                     ) : (
                       charactersWithMemorials.map((character) => (
                         <SearchResultItem
