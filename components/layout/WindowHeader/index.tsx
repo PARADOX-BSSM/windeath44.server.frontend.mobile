@@ -2,6 +2,7 @@
 
 import { MinIcon, FullIcon, ExitIcon, HeartIcon } from '@/assets';
 import * as _ from './styles';
+import { useRouter } from 'next/navigation';
 
 interface WindowHeaderProps {
   logoSrc?: string;
@@ -16,6 +17,8 @@ export default function WindowHeader({
   onMaximize,
   onClose,
 }: WindowHeaderProps) {
+  const router = useRouter();
+
   return (
     <_.HeaderContainer>
       <_.LogoSection>
@@ -44,6 +47,9 @@ export default function WindowHeader({
           <img
             src={ExitIcon.src}
             alt="Close"
+            onClick={() => {
+              router.back();
+            }}
           />
         </_.WindowBtn>
       </_.WindowButtons>
