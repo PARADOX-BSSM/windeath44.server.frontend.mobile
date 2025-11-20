@@ -242,7 +242,7 @@ export default function MemorialPage() {
           };
         }
         return comment;
-      })
+      }),
     );
     setReplyContent('');
     setReplyingTo(null);
@@ -522,6 +522,7 @@ export default function MemorialPage() {
                                 <_.ProfileImg imgUrl={userProfile?.profile || ''} />
                                 <_.TextBox>
                                   <_.NickNameContainer>
+                                    <_.NickName>{userProfile?.name}</_.NickName>
                                     <_.CommentUser>@{comment.userId}</_.CommentUser>
                                   </_.NickNameContainer>
                                   {isEditing ? (
@@ -541,7 +542,9 @@ export default function MemorialPage() {
                                         placeholder="댓글을 수정하세요."
                                       />
                                       <div style={{ display: 'flex', gap: '8px' }}>
-                                        <_.EditButton onClick={() => handleEditSubmit(comment.commentId)}>
+                                        <_.EditButton
+                                          onClick={() => handleEditSubmit(comment.commentId)}
+                                        >
                                           저장
                                         </_.EditButton>
                                         <_.DeleteButton
@@ -559,11 +562,17 @@ export default function MemorialPage() {
                                       <_.CommentText>{comment.content}</_.CommentText>
                                       <_.ActionButtonGroup>
                                         <div
-                                          style={{ display: 'flex', gap: '8px', alignItems: 'center' }}
+                                          style={{
+                                            display: 'flex',
+                                            gap: '8px',
+                                            alignItems: 'center',
+                                          }}
                                         >
                                           <_.LikeButton
                                             $isLiked={comment.isLiked}
-                                            onClick={() => handleLikeToggle(comment.commentId, comment.isLiked)}
+                                            onClick={() =>
+                                              handleLikeToggle(comment.commentId, comment.isLiked)
+                                            }
                                           >
                                             {comment.isLiked ? '♥' : '♡'} {comment.likes}
                                           </_.LikeButton>
@@ -620,7 +629,9 @@ export default function MemorialPage() {
                                         placeholder="답글을 입력하세요."
                                       />
                                       <div style={{ display: 'flex', gap: '8px' }}>
-                                        <_.EditButton onClick={() => handleReplySubmit(comment.commentId)}>
+                                        <_.EditButton
+                                          onClick={() => handleReplySubmit(comment.commentId)}
+                                        >
                                           작성
                                         </_.EditButton>
                                         <_.DeleteButton
@@ -651,6 +662,7 @@ export default function MemorialPage() {
                                     <_.ProfileImg imgUrl={childUserProfile?.profile || ''} />
                                     <_.TextBox>
                                       <_.NickNameContainer>
+                                        <_.NickName>{childUserProfile?.name}</_.NickName>
                                         <_.CommentUser>@{child.userId}</_.CommentUser>
                                       </_.NickNameContainer>
                                       {isChildEditing ? (
@@ -670,7 +682,9 @@ export default function MemorialPage() {
                                             placeholder="답글을 수정하세요."
                                           />
                                           <div style={{ display: 'flex', gap: '8px' }}>
-                                            <_.EditButton onClick={() => handleEditSubmit(child.commentId)}>
+                                            <_.EditButton
+                                              onClick={() => handleEditSubmit(child.commentId)}
+                                            >
                                               저장
                                             </_.EditButton>
                                             <_.DeleteButton
@@ -698,7 +712,9 @@ export default function MemorialPage() {
                                                   수정
                                                 </_.EditButton>
                                                 <_.DeleteButton
-                                                  onClick={() => handleDeleteSubmit(child.commentId)}
+                                                  onClick={() =>
+                                                    handleDeleteSubmit(child.commentId)
+                                                  }
                                                 >
                                                   삭제
                                                 </_.DeleteButton>

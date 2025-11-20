@@ -462,6 +462,16 @@ export const NickNameContainer = styled.div`
   gap: 8px;
 `;
 
+export const NickName = styled.p`
+  color: #9a5a95;
+  font-family: Galmuri11;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+  margin: 0;
+`;
+
 export const CommentUser = styled.p`
   color: var(--DarkPrimary, #dcafdd);
   font-family: ${fonts.primary};
